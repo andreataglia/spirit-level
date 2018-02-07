@@ -50,4 +50,4 @@ int main()
     pthread_join(spiritLevelThread,NULL);
     
     return 0;
-}
+} 

@@ -7,6 +7,12 @@
 *.o
 *.obj
 
+# Other compiled sources
+*.elf
+*.map
+*.hex
+*.bin
+
 # Precompiled Headers
 *.gch
 *.pch
