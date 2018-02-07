@@ -44,7 +44,7 @@ int main()
     
     for(;;)
     {
-        appRunningLed();
+        //appRunningLed();
     }
     
     pthread_join(spiritLevelThread,NULL);

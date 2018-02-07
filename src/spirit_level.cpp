@@ -32,18 +32,26 @@ void SpiritLevel::config(short sensitivity){
 void SpiritLevel::start() {
     for (;;) 
     {   
-        short measure;     
-        measure = accelerometer.waitForNewMeasure();
+        short measure[2];     
+        accelerometer.waitForNewMeasure(measure);
 
-        if (measure > 400) {
+        if (measure[X] > 400) {
             greenLed::low();
             redLed::high();
-        } else if (measure < -400){
+        } else if (measure[X] < -400){
             redLed::low();
             greenLed::high();
+        } else if (measure[Y] > 400){
+            blueLed::low();
+            orangeLed::high();
+        } else if (measure[Y] < -400){
+            orangeLed::low();
+            blueLed::high();
         } else {
             greenLed::low();
+            orangeLed::low();
             redLed::low();
+            blueLed::low();
         }
     }
 }
