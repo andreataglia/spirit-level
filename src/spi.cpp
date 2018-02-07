@@ -14,6 +14,8 @@ typedef Gpio<GPIOA_BASE,5> SCK;
 typedef Gpio<GPIOA_BASE,6> MISO;
 typedef Gpio<GPIOA_BASE,7> MOSI;
 
+typedef Gpio<GPIOE_BASE,4> CS_matrix;
+
 void Spi::csOn(){
     CS::low();
     usleep(1);
@@ -33,17 +35,21 @@ void Spi::config(){
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOEEN; //enable clock on GPIO that will be used
     
     //configure pins
-    SCK::mode(Mode::ALTERNATE) ;
-    SCK::alternateFunction(5) ;
+    SCK::mode(Mode::ALTERNATE);
+    SCK::alternateFunction(5);
     
-    MISO::mode(Mode::ALTERNATE) ;
-    MISO::alternateFunction(5) ;
+    MISO::mode(Mode::ALTERNATE);
+    MISO::alternateFunction(5);
     
-    MOSI::mode(Mode::ALTERNATE) ;
-    MOSI::alternateFunction(5) ;
+    MOSI::mode(Mode::ALTERNATE);
+    MOSI::alternateFunction(5);
     
-    CS::mode(Mode::OUTPUT) ;
+    CS::mode(Mode::OUTPUT);
     csOff();
+
+    CS_matrix::mode(Mode::OUTPUT);
+    CS_matrix::high();
+    usleep(1);
     
     // reset the SPI registers
     RCC->APB2RSTR |= RCC_APB2RSTR_SPI1RST; 
@@ -71,8 +77,6 @@ void Spi::write(uint8_t address, uint8_t data){
     
     while(SPI1->SR & SPI_SR_BSY){}; //wait for the SPI to be free
     csOff(); //end transmission
-    
-    return;
 }
 
 uint8_t Spi::read(uint8_t address){
@@ -102,4 +106,28 @@ uint8_t Spi::transfer(uint8_t data){
     while((SPI1->SR & SPI_SR_RXNE) == 0){}; //wait for the reply
     data = SPI1->DR; //read data
     return data;
+}
+
+void Spi::writeOnly(uint8_t address, uint8_t data){
+	
+	while(SPI1->SR & SPI_SR_BSY){}; //wait while SPI is busy
+	
+	CS_matrix::low();
+    usleep(1);
+	
+	// while((SPI1->SR & SPI_SR_TXE) == 0){};
+ //    SPI1->DR = address; //write data
+ //    while((SPI1->SR & SPI_SR_TXE) == 0){}; //wait for the transmitter buffer to be empty
+ //    SPI1->DR = data; //write data
+ //    while((SPI1->SR & SPI_SR_TXE) == 0){};
+	// while(SPI1->SR & SPI_SR_BSY){}; //wait while SPI is busy
+	
+
+    transfer(address);
+    transfer(data);
+    
+    while(SPI1->SR & SPI_SR_BSY){}; //wait for the SPI to be free
+
+	CS_matrix::high();
+    usleep(1);
 }

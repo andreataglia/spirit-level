@@ -9,6 +9,7 @@
 #include "lis3dsh_reg.h"
 #include "lis3dsh.h"
 #include "IRQhandler.h"
+#include "led_matrix_driver.h"
 
 using namespace miosix;
 
@@ -19,7 +20,7 @@ IRQhandler irqHandler;
  * configure the accelorometer to acquire measures 
  * @param sensitivity : output data rate of the accelerometer
  */
-void Lis3dsh::config(short sensitivity) {
+void Lis3dsh::config() {
 
     spi.config();
 
@@ -28,11 +29,11 @@ void Lis3dsh::config(short sensitivity) {
 
     address = CTRL_REG4;
     data = CTRL_REG4_XEN | CTRL_REG4_YEN; //accelerometer axis enabled
-    data |= CTRL_REG4_ODR0 | CTRL_REG4_ODR1 ; //output data rate at 100 Hz
+    data |= FREQ_50; //output data rate in Hz
     spi.write(address, data);
 
     address = CTRL_REG3;
-    data = CTRL_REG3_INT1EN; //interrupt1 enabled, signals when freefall is detected
+    data = CTRL_REG3_INT1EN; //interrupt1 enabled
     data |= CTRL_REG3_DR_EN; //data ready enabled
     data |= CTRL_REG3_IEA; //interrupt signal active high
     spi.write(address, data);
@@ -42,7 +43,7 @@ void Lis3dsh::config(short sensitivity) {
     spi.write(address, data);
 
     address = MASK1_A;
-    data = MASK1_A_P_X | MASK1_A_P_Y; //enable positive X
+    data = MASK1_A_P_X | MASK1_A_P_Y; //enable positive X, Y
     spi.write(address, data);
 
     irqHandler.configureAccInterrupt(); //configure interrupt 1 handler

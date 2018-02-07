@@ -11,6 +11,7 @@ class Spi {
 public:    
     void config();
     void write(uint8_t address, uint8_t data);
+    void writeOnly(uint8_t address, uint8_t data);
     uint8_t read(uint8_t address);
     
 private:

@@ -78,5 +78,16 @@
 #define SETT1_THR3_SA       0x40
 #define SETT1_P_DET         0x80
 
+// available data acquisition frequencies in Hz
+#define FREQ_3_125 			0x10 
+#define FREQ_6_25 			0x20
+#define FREQ_12_5 			0x30
+#define FREQ_25 			0x40
+#define FREQ_50 			0x50
+#define FREQ_100 			0x60
+#define FREQ_400 			0x70
+#define FREQ_800 			0x80
+#define FREQ_1600 			0x90
+
 #endif /* LIS3DSH_REG_H */
 

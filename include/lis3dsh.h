@@ -11,7 +11,7 @@ const short Y=1;
 
 class Lis3dsh {
 public:    
-    void config(short sensitivity);
+    void config();
     void waitForNewMeasure(short * measure);
     
 private:

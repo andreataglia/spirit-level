@@ -20,7 +20,8 @@ LedMatrix ledMatrix;
  */
 void SpiritLevel::config(short sensitivity){
     this->sensitivity = sensitivity;
-    accelerometer.config(sensitivity);
+    accelerometer.config();
+    ledMatrix.config();
 }
 
 /**
@@ -29,44 +30,20 @@ void SpiritLevel::config(short sensitivity){
  * then call the led matrix driver to print the corresponding sprite
  */
 void SpiritLevel::start() {
-    short measure; 
+    short measure[2]; 
     //central position is 3,3
     short x_position = 3;
     short y_position = 3;
     for (;;) 
     {   
-        measure = accelerometer.waitForNewMeasure();
-
-        short x = 1500;
-        short y = 200;
+        accelerometer.waitForNewMeasure(measure);
         
         //compute the position in a linear manner.
-        x_position = 3 + x/sensitivity;
-        y_position = 3 + y/sensitivity;
+        //the negation is due to the board accelerometer axis direction
+        x_position = 3 - measure[X]/sensitivity;
+        y_position = 3 - measure[Y]/sensitivity;
 
         //print out relative sprite
         ledMatrix.printOutSpriteOnMockLeds(x_position, y_position);
-
-        // short measure[2];     
-        // accelerometer.waitForNewMeasure(measure);
-
-        // if (measure[X] > 400) {
-        //     greenLed::low();
-        //     redLed::high();
-        // } else if (measure[X] < -400){
-        //     redLed::low();
-        //     greenLed::high();
-        // } else if (measure[Y] > 400){
-        //     blueLed::low();
-        //     orangeLed::high();
-        // } else if (measure[Y] < -400){
-        //     orangeLed::low();
-        //     blueLed::high();
-        // } else {
-        //     greenLed::low();
-        //     orangeLed::low();
-        //     redLed::low();
-        //     blueLed::low();
-        // }
     }
 }
