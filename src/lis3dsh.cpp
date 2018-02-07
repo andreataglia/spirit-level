@@ -27,7 +27,7 @@ void Lis3dsh::config(short sensitivity) {
     uint8_t data;
 
     address = CTRL_REG4;
-    data = CTRL_REG4_XEN; //accelerometer axis enabled
+    data = CTRL_REG4_XEN | CTRL_REG4_YEN; //accelerometer axis enabled
     data |= CTRL_REG4_ODR0 | CTRL_REG4_ODR1 ; //output data rate at 100 Hz
     spi.write(address, data);
 
@@ -38,11 +38,11 @@ void Lis3dsh::config(short sensitivity) {
     spi.write(address, data);
 
     address = MASK1_B;
-    data = MASK1_B_P_X; //enable positive X
+    data = MASK1_B_P_X | MASK1_B_P_Y; //enable positive X, Y
     spi.write(address, data);
 
     address = MASK1_A;
-    data = MASK1_A_P_X; //enable positive X
+    data = MASK1_A_P_X | MASK1_A_P_Y; //enable positive X
     spi.write(address, data);
 
     irqHandler.configureAccInterrupt(); //configure interrupt 1 handler
@@ -51,15 +51,23 @@ void Lis3dsh::config(short sensitivity) {
 /**
  * @return new measure
  */
-short Lis3dsh::waitForNewMeasure() {
+void Lis3dsh::waitForNewMeasure(short * measure) {
     
     irqHandler.waitForAccMeasure();
 
-    uint8_t lsb = spi.read(OUT_X_L);
-    uint8_t msb = spi.read(OUT_X_H);
+    uint8_t lsbX = spi.read(OUT_X_L);
+    uint8_t msbX = spi.read(OUT_X_H);
+    uint8_t lsbY = spi.read(OUT_Y_L);
+    uint8_t msbY = spi.read(OUT_Y_H);
 
-    short measure = ((msb << 8 ) | (lsb & 0xff));
-    measure /= 16.384;
+    short Xmeasure = ((msbX << 8) | (lsbX & 0xff));
+    Xmeasure /= 16.384;
 
-    return measure;
+    short Ymeasure = ((msbY << 8) | (lsbY & 0xff));
+    Ymeasure /= 16.384;
+
+    measure[X] = Xmeasure;
+    measure[Y] = Ymeasure;
+
+    return;
 }

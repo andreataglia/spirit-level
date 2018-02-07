@@ -46,5 +46,27 @@ void SpiritLevel::start() {
 
         //print out relative sprite
         ledMatrix.printOutSpriteOnMockLeds(x_position, y_position);
+
+        // short measure[2];     
+        // accelerometer.waitForNewMeasure(measure);
+
+        // if (measure[X] > 400) {
+        //     greenLed::low();
+        //     redLed::high();
+        // } else if (measure[X] < -400){
+        //     redLed::low();
+        //     greenLed::high();
+        // } else if (measure[Y] > 400){
+        //     blueLed::low();
+        //     orangeLed::high();
+        // } else if (measure[Y] < -400){
+        //     orangeLed::low();
+        //     blueLed::high();
+        // } else {
+        //     greenLed::low();
+        //     orangeLed::low();
+        //     redLed::low();
+        //     blueLed::low();
+        // }
     }
 }
