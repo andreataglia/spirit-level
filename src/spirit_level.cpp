@@ -7,43 +7,44 @@
 #include <miosix.h>
 #include "spirit_level.h"
 #include "lis3dsh.h"
+#include "led_matrix_driver.h"
 
 using namespace miosix;
 
 Lis3dsh accelerometer;
+LedMatrix ledMatrix;
 
-typedef Gpio<GPIOD_BASE, 12> greenLed;
-typedef Gpio<GPIOD_BASE, 13> orangeLed;
-typedef Gpio<GPIOD_BASE, 14> redLed;
-typedef Gpio<GPIOD_BASE, 15> blueLed;
-
+/**
+ * Configure the SpiritLevel class
+ * @param sensitivity is the minimum variation in acceleration (in milliG) which is recognized as a change in position
+ */
 void SpiritLevel::config(short sensitivity){
-    greenLed::mode(Mode::OUTPUT);
-    orangeLed::mode(Mode::OUTPUT); 
-    redLed::mode(Mode::OUTPUT);
-    blueLed::mode(Mode::OUTPUT); 
-
+    this->sensitivity = sensitivity;
     accelerometer.config(sensitivity);
 }
 
 /**
- * Wait for a new measure and set the new level based on the measure
+ * Wait for a new measure from accelerometer,
+ * then compute the position based on a 8x8 available postions,
+ * then call the led matrix driver to print the corresponding sprite
  */
 void SpiritLevel::start() {
+    short measure; 
+    //central position is 3,3
+    short x_position = 3;
+    short y_position = 3;
     for (;;) 
     {   
-        short measure;     
         measure = accelerometer.waitForNewMeasure();
 
-        if (measure > 400) {
-            greenLed::low();
-            redLed::high();
-        } else if (measure < -400){
-            redLed::low();
-            greenLed::high();
-        } else {
-            greenLed::low();
-            redLed::low();
-        }
+        short x = 1500;
+        short y = 200;
+        
+        //compute the position in a linear manner.
+        x_position = 3 + x/sensitivity;
+        y_position = 3 + y/sensitivity;
+
+        //print out relative sprite
+        ledMatrix.printOutSpriteOnMockLeds(x_position, y_position);
     }
 }

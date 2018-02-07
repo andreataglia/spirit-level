@@ -12,7 +12,7 @@ public:
     void start();
     
 private:
-
+	short sensitivity;
 };
 
 #endif	/* SPIRIT_LEVEL_H */

@@ -17,7 +17,7 @@ SUBDIRS := $(KPATH)
 ## List here your source files (both .s, .c and .cpp)
 ##
 SRC :=                                  \
-main.cpp src/spi.cpp src/lis3dsh.cpp src/IRQhandler.cpp src/spirit_level.cpp
+main.cpp src/spi.cpp src/lis3dsh.cpp src/IRQhandler.cpp src/spirit_level.cpp src/led_matrix_driver.cpp
 
 ##
 ## List here additional static libraries with relative path
