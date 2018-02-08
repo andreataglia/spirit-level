@@ -10,6 +10,7 @@
 class LedMatrix {
 public:    
     LedMatrix();
+    void clearDisplay();
     void config(Spi &spiComm);
     void printOutSprite(short x_position, short y_position);
     void printOutSpriteOnMockLeds(short x_position, short y_position);
