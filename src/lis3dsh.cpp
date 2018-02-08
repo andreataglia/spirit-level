@@ -5,7 +5,6 @@
  */
 
 #include <miosix.h>
-#include "spi.h"
 #include "lis3dsh_reg.h"
 #include "lis3dsh.h"
 #include "IRQhandler.h"
@@ -13,16 +12,13 @@
 
 using namespace miosix;
 
-Spi spi;
 IRQhandler irqHandler;
 
 /**
  * configure the accelorometer to acquire measures 
- * @param sensitivity : output data rate of the accelerometer
  */
-void Lis3dsh::config() {
-
-    spi.config();
+void Lis3dsh::config(Spi &spiComm) {
+    this->spi = spiComm;
 
     uint8_t address;
     uint8_t data;
@@ -30,22 +26,24 @@ void Lis3dsh::config() {
     address = CTRL_REG4;
     data = CTRL_REG4_XEN | CTRL_REG4_YEN; //accelerometer axis enabled
     data |= FREQ_50; //output data rate in Hz
-    spi.write(address, data);
+    this->spi.write(address, data);
 
     address = CTRL_REG3;
     data = CTRL_REG3_INT1EN; //interrupt1 enabled
     data |= CTRL_REG3_DR_EN; //data ready enabled
     data |= CTRL_REG3_IEA; //interrupt signal active high
-    spi.write(address, data);
+    this->spi.write(address, data);
 
     address = MASK1_B;
     data = MASK1_B_P_X | MASK1_B_P_Y; //enable positive X, Y
-    spi.write(address, data);
+    this->spi.write(address, data);
 
     address = MASK1_A;
     data = MASK1_A_P_X | MASK1_A_P_Y; //enable positive X, Y
-    spi.write(address, data);
+    this->spi.write(address, data);
+}
 
+void Lis3dsh::start(){
     irqHandler.configureAccInterrupt(); //configure interrupt 1 handler
 }
 
@@ -56,10 +54,10 @@ void Lis3dsh::waitForNewMeasure(short * measure) {
     
     irqHandler.waitForAccMeasure();
 
-    uint8_t lsbX = spi.read(OUT_X_L);
-    uint8_t msbX = spi.read(OUT_X_H);
-    uint8_t lsbY = spi.read(OUT_Y_L);
-    uint8_t msbY = spi.read(OUT_Y_H);
+    uint8_t lsbX = this->spi.read(OUT_X_L);
+    uint8_t msbX = this->spi.read(OUT_X_H);
+    uint8_t lsbY = this->spi.read(OUT_Y_L);
+    uint8_t msbY = this->spi.read(OUT_Y_H);
 
     short Xmeasure = ((msbX << 8) | (lsbX & 0xff));
     Xmeasure /= 16.384;

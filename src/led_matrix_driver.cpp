@@ -7,7 +7,6 @@
 
 #include <miosix.h>
 #include "led_matrix_driver.h"
-#include "spi.h"
 
 using namespace miosix;
 
@@ -16,8 +15,6 @@ typedef Gpio<GPIOD_BASE, 13> orangeLed;
 typedef Gpio<GPIOD_BASE, 14> redLed;
 typedef Gpio<GPIOD_BASE, 15> blueLed;
 
-Spi spi2;
-
 LedMatrix::LedMatrix(){
     greenLed::mode(Mode::OUTPUT);
     orangeLed::mode(Mode::OUTPUT); 
@@ -25,48 +22,49 @@ LedMatrix::LedMatrix(){
     blueLed::mode(Mode::OUTPUT); 
 }
 
-void LedMatrix::config(){
+void LedMatrix::config(Spi &spiComm){
+
+    this->spi = spiComm;
+
     uint8_t address;
     uint8_t data;
 
     //display test a zero
     address = 0x0F;
     data = 0x00;
-    spi2.writeOnly(address, data);
+    this->spi.writeOnly(address, data);
     
     //scan limit
     address = 0x0B;
     data = 0x07;
-    spi2.writeOnly(address, data);
+    this->spi.writeOnly(address, data);
 
     //decode mode
     address = 0x09;
     data = 0x00;
-    spi2.writeOnly(address, data);
+    this->spi.writeOnly(address, data);
 
     //shutdown mode
     address = 0x0C;
     data = 0x00;
-    spi2.writeOnly(address, data);
+    this->spi.writeOnly(address, data);
 
     //shutdown mode
     address = 0x0C;
     data = 0x01;
-    spi2.writeOnly(address, data);
+    this->spi.writeOnly(address, data);
 
     for (int i = 0; i < 8; ++i)
     { 
         address = i+1;
         data = 0x00;
-        spi2.writeOnly(address, data);
+        this->spi.writeOnly(address, data);
     }
 
     //set row
-    address = 0x03;
+    address = 0x04;
     data = 0x2F;
-    spi2.writeOnly(address, data);
-
-    /////////
+    this->spi.writeOnly(address, data);
 }
 
 void LedMatrix::printOutSprite(short x_position, short y_position){

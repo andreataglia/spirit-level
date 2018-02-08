@@ -8,11 +8,13 @@
 #include "spirit_level.h"
 #include "lis3dsh.h"
 #include "led_matrix_driver.h"
+#include "spi.h"
 
 using namespace miosix;
 
 Lis3dsh accelerometer;
 LedMatrix ledMatrix;
+Spi spi;
 
 /**
  * Configure the SpiritLevel class
@@ -20,8 +22,10 @@ LedMatrix ledMatrix;
  */
 void SpiritLevel::config(short sensitivity){
     this->sensitivity = sensitivity;
-    accelerometer.config();
-    ledMatrix.config();
+    spi.config();
+    accelerometer.config(spi);
+    ledMatrix.config(spi);
+    accelerometer.start();
 }
 
 /**
@@ -36,7 +40,7 @@ void SpiritLevel::start() {
     short y_position = 3;
     for (;;) 
     {   
-        accelerometer.waitForNewMeasure(measure);
+        accelerometer.waitForNewMeasure(measure); //wait for the interrupt to get new measure
         
         //compute the position in a linear manner.
         //the negation is due to the board accelerometer axis direction

@@ -25,7 +25,7 @@ void __attribute__((used)) EXTI0HandlerImpl()
 {
     EXTI->PR=EXTI_PR_PR0;
     
-    if(waiting==0) return;
+    if(waiting==0) return; //it allows not to have cuncurrent interrupts
     waiting->IRQwakeup();
     if(waiting->IRQgetPriority() > Thread::IRQgetCurrentThread()->IRQgetPriority())
         Scheduler::IRQfindNextThread();
