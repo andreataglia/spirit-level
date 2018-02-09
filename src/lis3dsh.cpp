@@ -15,7 +15,9 @@ using namespace miosix;
 IRQhandler irqHandler;
 
 /**
- * configure the accelorometer to acquire measures 
+ * Configure the LIS3DSH accelorometer to acquire measures. 
+ * No state machine is necessary.
+ * @param spiComm spi communication reference to talk to the accelerometer
  */
 void Lis3dsh::config(Spi &spiComm) {
     this->spi = spiComm;
@@ -43,12 +45,17 @@ void Lis3dsh::config(Spi &spiComm) {
     this->spi.write_acc(address, data);
 }
 
+/**
+ * Configure the interrupt INT1 and enable it
+ */
 void Lis3dsh::start(){
     irqHandler.configureAccInterrupt(); //configure interrupt 1 handler
 }
 
 /**
- * @return new measure
+ * Wait for the interrupt INT1 to wake up the thread and read the new measure values. 
+ * Interrupts happening in the meantime are ignored 
+ * @param measure acquired
  */
 void Lis3dsh::waitForNewMeasure(short * measure) {
     

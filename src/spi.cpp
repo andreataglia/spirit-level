@@ -37,7 +37,7 @@ void Spi::cs_matrix_off(){
 }
 
 /**
- * SPI config
+ * SPI config pins necessary for the comunication and registers
  */
 void Spi::config(){
     
@@ -65,7 +65,7 @@ void Spi::config(){
     RCC->APB2RSTR &= !(RCC_APB2RSTR_SPI1RST);
     
     // SPI protocol configuration
-    SPI1->CR1 |= SPI_CR1_BR_0 | SPI_CR1_BR_1 | SPI_CR1_BR_2; //set the lowest baud rate (328kHz)
+    SPI1->CR1 |= SPI_CR1_BR_0 | SPI_CR1_BR_1 | SPI_CR1_BR_2; //set the baud rate to the lowest prescaler
     SPI1->CR1 &= ~SPI_CR1_CPHA ; //sampling on clock rising edge
     SPI1->CR1 &= ~SPI_CR1_CPOL ; //idle clock low
     SPI1->CR1 &= ~SPI_CR1_DFF ; //8-bit frame
@@ -77,6 +77,11 @@ void Spi::config(){
     SPI1->CR1 |= SPI_CR1_SPE ; //spi enabled
 }
 
+/**
+ * Send data to the accelerometer
+ * @param address to write
+ * @param data    to write
+ */
 void Spi::write_acc(uint8_t address, uint8_t data){
     while(SPI1->SR & SPI_SR_BSY){}; //wait while SPI is busy
     
@@ -88,6 +93,11 @@ void Spi::write_acc(uint8_t address, uint8_t data){
     cs_acc_off(); //end transmission
 }
 
+/**
+ * Send data to the led matrix
+ * @param address to write
+ * @param data    to write
+ */
 void Spi::write_matrix(uint8_t address, uint8_t data){
 	while(SPI1->SR & SPI_SR_BSY){}; //wait while SPI is busy
 	
@@ -99,6 +109,10 @@ void Spi::write_matrix(uint8_t address, uint8_t data){
 	cs_matrix_off(); //end transmission
 }
 
+/**
+ * Read byte from the accelerometer
+ * @param address to read from
+ */
 uint8_t Spi::read_acc(uint8_t address){
     while(SPI1->SR & SPI_SR_BSY){}; //wait while SPI is busy
     cs_acc_on(); //start transmission
@@ -116,7 +130,7 @@ uint8_t Spi::read_acc(uint8_t address){
 }
 
 /**
- * send data and return the reply received 
+ * Send data and return the reply received 
  * @param  data to send
  * @return reply received
  */
