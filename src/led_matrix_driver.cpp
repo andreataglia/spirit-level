@@ -6,6 +6,7 @@
  */
 
 #include <miosix.h>
+#include <cmath>
 #include "led_matrix_driver.h"
 
 using namespace miosix;
@@ -22,6 +23,23 @@ LedMatrix::LedMatrix(){
     blueLed::mode(Mode::OUTPUT); 
 }
 
+/**
+ * Turn off all the leds on the matrix
+ */
+void LedMatrix::clearDisplay(){
+    uint8_t address;
+    uint8_t data = 0x00;
+    for (int i = 0; i < 8; ++i)
+    { 
+        address = i+1;
+        this->spi.write_matrix(address, data);
+    }
+}
+
+/**
+ * Config the Led Matrix Controller Max7219
+ * @param spiComm spi reference used to communicate with the chip
+ */
 void LedMatrix::config(Spi &spiComm){
 
     this->spi = spiComm;
@@ -29,65 +47,68 @@ void LedMatrix::config(Spi &spiComm){
     uint8_t address;
     uint8_t data;
 
-    //display test a zero
+    //display test to zero
     address = 0x0F;
     data = 0x00;
-    this->spi.writeOnly(address, data);
+    this->spi.write_matrix(address, data);
     
     //scan limit
     address = 0x0B;
     data = 0x07;
-    this->spi.writeOnly(address, data);
+    this->spi.write_matrix(address, data);
+
+    //led intensity
+    address = 0x0A;
+    data = 0x07;
+    this->spi.write_matrix(address, data);
 
     //decode mode
     address = 0x09;
     data = 0x00;
-    this->spi.writeOnly(address, data);
+    this->spi.write_matrix(address, data);
 
     //shutdown mode
     address = 0x0C;
     data = 0x00;
-    this->spi.writeOnly(address, data);
+    this->spi.write_matrix(address, data);
 
     //shutdown mode
     address = 0x0C;
     data = 0x01;
-    this->spi.writeOnly(address, data);
+    this->spi.write_matrix(address, data);
 
-    for (int i = 0; i < 8; ++i)
-    { 
-        address = i+1;
-        data = 0x00;
-        this->spi.writeOnly(address, data);
-    }
-
-    //set row
-    address = 0x04;
-    data = 0x2F;
-    this->spi.writeOnly(address, data);
+    clearDisplay();
 }
 
+/**
+ * Translate sprite into leds on the matrix
+ * @param x_position calculated for the accelerometer
+ * @param y_position calculated for the accelerometer
+ */
 void LedMatrix::printOutSprite(short x_position, short y_position){
-    // if (x_position == 1)
-    // {
-    //     greenLed::high();
-    // } else if(x_position == 2){
-    //     orangeLed::high();
-    // }
-    // else if(x_position == 3){
-    //     redLed::high();
-    // }
-    // else if(x_position == 4){
-    //     blueLed::high();
-    // }
-    
+    x_position = x_position > 7 ? 7 : x_position;
+    x_position = x_position < 1 ? 1 : x_position;
+    y_position = y_position > 8 ? 8 : y_position;
+    y_position = y_position < 2 ? 2 : y_position;
+
+    clearDisplay();
+
+    //print out sprite
+    short y_calculated = (pow(2, y_position-1) + pow(2, y_position-2));
+    this->spi.write_matrix(9-x_position, y_calculated);
+    this->spi.write_matrix(8-x_position, y_calculated);
 }
 
+/**
+ * Use the leds on the board to highlight the accelerometer position. For debug purposes mainly
+ * @param x_position calculated for the accelerometer
+ * @param y_position calculated for the accelerometer
+ */
 void LedMatrix::printOutSpriteOnMockLeds(short x_position, short y_position){
-    if (x_position >= 5){
+    if (x_position >= 6){
         greenLed::high();
         redLed::low();
-    } else if (x_position <= 1){
+    } else if (x_position <= 2){
         greenLed::low();
         redLed::high();
     } else{
@@ -95,12 +116,12 @@ void LedMatrix::printOutSpriteOnMockLeds(short x_position, short y_position){
         redLed::low();
     }
 
-    if (y_position >= 5){
+    if (y_position >= 7){
         blueLed::high();
         orangeLed::low();
-    } else if (y_position <= 1){
-        blueLed::low();
+    } else if (y_position <= 3){
         orangeLed::high();
+        blueLed::low();
     } else{
         blueLed::low();
         orangeLed::low();
