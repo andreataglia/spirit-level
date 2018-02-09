@@ -9,25 +9,35 @@
 
 using namespace miosix;
 
-typedef Gpio<GPIOE_BASE,3> CS;
 typedef Gpio<GPIOA_BASE,5> SCK;
 typedef Gpio<GPIOA_BASE,6> MISO;
 typedef Gpio<GPIOA_BASE,7> MOSI;
 
+typedef Gpio<GPIOE_BASE,3> CS_acc;
 typedef Gpio<GPIOE_BASE,4> CS_matrix;
 
-void Spi::csOn(){
-    CS::low();
+void Spi::cs_acc_on(){
+    CS_acc::low();
     usleep(1);
 }
 
-void Spi::csOff(){
-    CS::high();
+void Spi::cs_acc_off(){
+    CS_acc::high();
+    usleep(1);
+}
+
+void Spi::cs_matrix_on(){
+    CS_matrix::low();
+    usleep(1);
+}
+
+void Spi::cs_matrix_off(){
+    CS_matrix::high();
     usleep(1);
 }
 
 /**
- * Configure the SPI
+ * SPI config
  */
 void Spi::config(){
     
@@ -44,12 +54,11 @@ void Spi::config(){
     MOSI::mode(Mode::ALTERNATE);
     MOSI::alternateFunction(5);
     
-    CS::mode(Mode::OUTPUT);
-    csOff();
+    CS_acc::mode(Mode::OUTPUT);
+    cs_acc_off();
 
     CS_matrix::mode(Mode::OUTPUT);
-    CS_matrix::high();
-    usleep(1);
+    cs_matrix_off();
     
     // reset the SPI registers
     RCC->APB2RSTR |= RCC_APB2RSTR_SPI1RST; 
@@ -68,20 +77,31 @@ void Spi::config(){
     SPI1->CR1 |= SPI_CR1_SPE ; //spi enabled
 }
 
-void Spi::write(uint8_t address, uint8_t data){
+void Spi::write_acc(uint8_t address, uint8_t data){
     while(SPI1->SR & SPI_SR_BSY){}; //wait while SPI is busy
     
-    csOn(); //start transmission
+    cs_acc_on(); //start transmission
     transfer(address);
     transfer(data);
     
     while(SPI1->SR & SPI_SR_BSY){}; //wait for the SPI to be free
-    csOff(); //end transmission
+    cs_acc_off(); //end transmission
 }
 
-uint8_t Spi::read(uint8_t address){
+void Spi::write_matrix(uint8_t address, uint8_t data){
+	while(SPI1->SR & SPI_SR_BSY){}; //wait while SPI is busy
+	
+	cs_matrix_on();
+    transfer(address);
+    transfer(data);
+    
+    while(SPI1->SR & SPI_SR_BSY){}; //wait for the SPI to be free
+	cs_matrix_off(); //end transmission
+}
+
+uint8_t Spi::read_acc(uint8_t address){
     while(SPI1->SR & SPI_SR_BSY){}; //wait while SPI is busy
-    csOn(); //start transmission
+    cs_acc_on(); //start transmission
     
     //concatenate command bit 1<<7 indicating a read operation
     transfer(address | SPI_READ); //global status returned byte is not of interest
@@ -90,7 +110,7 @@ uint8_t Spi::read(uint8_t address){
     data = transfer(0x00); //here is the data I want to read.     
     
     while(SPI1->SR & SPI_SR_BSY){};
-    csOff(); //end transmission
+    cs_acc_off(); //end transmission
     
     return data;
 }
@@ -106,28 +126,4 @@ uint8_t Spi::transfer(uint8_t data){
     while((SPI1->SR & SPI_SR_RXNE) == 0){}; //wait for the reply
     data = SPI1->DR; //read data
     return data;
-}
-
-void Spi::writeOnly(uint8_t address, uint8_t data){
-	
-	while(SPI1->SR & SPI_SR_BSY){}; //wait while SPI is busy
-	
-	CS_matrix::low();
-    usleep(1);
-	
-	// while((SPI1->SR & SPI_SR_TXE) == 0){};
- //    SPI1->DR = address; //write data
- //    while((SPI1->SR & SPI_SR_TXE) == 0){}; //wait for the transmitter buffer to be empty
- //    SPI1->DR = data; //write data
- //    while((SPI1->SR & SPI_SR_TXE) == 0){};
-	// while(SPI1->SR & SPI_SR_BSY){}; //wait while SPI is busy
-	
-
-    transfer(address);
-    transfer(data);
-    
-    while(SPI1->SR & SPI_SR_BSY){}; //wait for the SPI to be free
-
-	CS_matrix::high();
-    usleep(1);
 }
