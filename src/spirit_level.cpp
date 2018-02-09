@@ -14,7 +14,6 @@ using namespace miosix;
 
 Lis3dsh accelerometer;
 LedMatrix ledMatrix;
-Spi spi;
 
 /**
  * Configure the SpiritLevel class
@@ -22,9 +21,8 @@ Spi spi;
  */
 void SpiritLevel::config(short sensitivity){
     this->sensitivity = sensitivity;
-    spi.config();
-    ledMatrix.config(spi);
-    accelerometer.config(spi);
+    ledMatrix.config();
+    accelerometer.config();
     accelerometer.start();
 }
 

@@ -16,6 +16,20 @@ typedef Gpio<GPIOA_BASE,7> MOSI;
 typedef Gpio<GPIOE_BASE,3> CS_acc;
 typedef Gpio<GPIOE_BASE,4> CS_matrix;
 
+/* --------------------------------------------------------------------------------------------------------------------- */
+/* -------------------------------------------------- PRIVATE METHODS -------------------------------------------------- */
+/* --------------------------------------------------------------------------------------------------------------------- */
+
+Spi* Spi::instance = 0;
+
+Spi* Spi::getInstance(){
+    if (instance == 0)
+    {
+        instance = new Spi();
+    }
+    return instance;
+}
+
 void Spi::cs_acc_on(){
     CS_acc::low();
     usleep(1);
@@ -39,7 +53,7 @@ void Spi::cs_matrix_off(){
 /**
  * SPI config pins necessary for the comunication and registers
  */
-void Spi::config(){
+Spi::Spi(){
     
     RCC->APB2ENR |= RCC_APB2ENR_SPI1EN ; //pheripheral clock enabled
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOEEN; //enable clock on GPIO that will be used
@@ -76,6 +90,10 @@ void Spi::config(){
     SPI1->CR1 |= SPI_CR1_MSTR ; //master config
     SPI1->CR1 |= SPI_CR1_SPE ; //spi enabled
 }
+
+/* -------------------------------------------------------------------------------------------------------------------- */
+/* -------------------------------------------------- PUBLIC METHODS -------------------------------------------------- */
+/* -------------------------------------------------------------------------------------------------------------------- */
 
 /**
  * Send data to the accelerometer

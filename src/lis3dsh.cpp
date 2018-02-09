@@ -9,6 +9,7 @@
 #include "lis3dsh.h"
 #include "IRQhandler.h"
 #include "led_matrix_driver.h"
+#include "spi.h"
 
 using namespace miosix;
 
@@ -17,10 +18,9 @@ IRQhandler irqHandler;
 /**
  * Configure the LIS3DSH accelorometer to acquire measures. 
  * No state machine is necessary.
- * @param spiComm spi communication reference to talk to the accelerometer
  */
-void Lis3dsh::config(Spi &spiComm) {
-    this->spi = spiComm;
+void Lis3dsh::config() {
+    spi = Spi::getInstance();
 
     uint8_t address;
     uint8_t data;
@@ -28,21 +28,21 @@ void Lis3dsh::config(Spi &spiComm) {
     address = CTRL_REG4;
     data = CTRL_REG4_XEN | CTRL_REG4_YEN; //accelerometer axis enabled
     data |= FREQ_50; //output data rate in Hz
-    this->spi.write_acc(address, data);
+    spi->write_acc(address, data);
 
     address = CTRL_REG3;
     data = CTRL_REG3_INT1EN; //interrupt1 enabled
     data |= CTRL_REG3_DR_EN; //data ready enabled
     data |= CTRL_REG3_IEA; //interrupt signal active high
-    this->spi.write_acc(address, data);
+    spi->write_acc(address, data);
 
     address = MASK1_B;
     data = MASK1_B_P_X | MASK1_B_P_Y; //enable positive X, Y
-    this->spi.write_acc(address, data);
+    spi->write_acc(address, data);
 
     address = MASK1_A;
     data = MASK1_A_P_X | MASK1_A_P_Y; //enable positive X, Y
-    this->spi.write_acc(address, data);
+    spi->write_acc(address, data);
 }
 
 /**
@@ -61,10 +61,10 @@ void Lis3dsh::waitForNewMeasure(short * measure) {
     
     irqHandler.waitForAccMeasure();
 
-    uint8_t lsbX = this->spi.read_acc(OUT_X_L);
-    uint8_t msbX = this->spi.read_acc(OUT_X_H);
-    uint8_t lsbY = this->spi.read_acc(OUT_Y_L);
-    uint8_t msbY = this->spi.read_acc(OUT_Y_H);
+    uint8_t lsbX = spi->read_acc(OUT_X_L);
+    uint8_t msbX = spi->read_acc(OUT_X_H);
+    uint8_t lsbY = spi->read_acc(OUT_Y_L);
+    uint8_t msbY = spi->read_acc(OUT_Y_H);
 
     short Xmeasure = ((msbX << 8) | (lsbX & 0xff));
     Xmeasure /= 16.384;

@@ -11,12 +11,12 @@ class LedMatrix {
 public:    
     LedMatrix();
     void clearDisplay();
-    void config(Spi &spiComm);
+    void config();
     void printOutSprite(short x_position, short y_position);
     void printOutSpriteOnMockLeds(short x_position, short y_position);
     
 private:
-    Spi spi;
+    Spi* spi;
 };
 
 #endif	/* LED_MATRIX_DRIVER_H */

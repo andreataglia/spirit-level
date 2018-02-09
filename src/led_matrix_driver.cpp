@@ -8,6 +8,7 @@
 #include <miosix.h>
 #include <cmath>
 #include "led_matrix_driver.h"
+#include "spi.h"
 
 using namespace miosix;
 
@@ -32,17 +33,16 @@ void LedMatrix::clearDisplay(){
     for (int i = 0; i < 8; ++i)
     { 
         address = i+1;
-        this->spi.write_matrix(address, data);
+        spi->write_matrix(address, data);
     }
 }
 
 /**
  * Config the Led Matrix Controller Max7219
- * @param spiComm spi reference used to communicate with the chip
  */
-void LedMatrix::config(Spi &spiComm){
+void LedMatrix::config(){
 
-    this->spi = spiComm;
+    spi = Spi::getInstance();
 
     uint8_t address;
     uint8_t data;
@@ -50,32 +50,32 @@ void LedMatrix::config(Spi &spiComm){
     //display test to zero
     address = 0x0F;
     data = 0x00;
-    this->spi.write_matrix(address, data);
+    spi->write_matrix(address, data);
     
     //scan limit
     address = 0x0B;
     data = 0x07;
-    this->spi.write_matrix(address, data);
+    spi->write_matrix(address, data);
 
     //led intensity
     address = 0x0A;
     data = 0x07;
-    this->spi.write_matrix(address, data);
+    spi->write_matrix(address, data);
 
     //decode mode
     address = 0x09;
     data = 0x00;
-    this->spi.write_matrix(address, data);
+    spi->write_matrix(address, data);
 
     //shutdown mode
     address = 0x0C;
     data = 0x00;
-    this->spi.write_matrix(address, data);
+    spi->write_matrix(address, data);
 
     //shutdown mode
     address = 0x0C;
     data = 0x01;
-    this->spi.write_matrix(address, data);
+    spi->write_matrix(address, data);
 
     clearDisplay();
 }
@@ -95,8 +95,8 @@ void LedMatrix::printOutSprite(short x_position, short y_position){
 
     //print out sprite
     short y_calculated = (pow(2, y_position-1) + pow(2, y_position-2));
-    this->spi.write_matrix(9-x_position, y_calculated);
-    this->spi.write_matrix(8-x_position, y_calculated);
+    spi->write_matrix(9-x_position, y_calculated);
+    spi->write_matrix(8-x_position, y_calculated);
 }
 
 /**
