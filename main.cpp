@@ -12,28 +12,34 @@ using namespace miosix;
 
 const short SENSITIVITY = 200;
 
-typedef Gpio<GPIOD_BASE, 13> orangeLed;
+typedef Gpio<GPIOD_BASE, 5> redLed;
 
+/**
+ * Blink a led, just for debugging purpose, while the application is running 
+ */
 void appRunningLed() 
 {
-    orangeLed::high();
+    redLed::high();
     usleep(1000000);
-    orangeLed::low();
+    redLed::low();
     usleep(1000000);
 }
 
 SpiritLevel spiritLevel;
 
 /**
- * spirit level application logic thread 
+ * Spirit level application logic thread 
  */
 void *spiritLevelLoop(void *arg)
 {
-    miosix::Thread::getCurrentThread()->setPriority(PRIORITY_MAX-1);
+    miosix::Thread::getCurrentThread()->setPriority(PRIORITY_MAX-1); //Give priority to the application logic thread
     spiritLevel.start();
     return 0;
 }
 
+/**
+ * Start the application thread and in the main thread blink a 
+ */
 int main()
 {
     pthread_t spiritLevelThread;
@@ -43,7 +49,7 @@ int main()
     
     for(;;)
     {
-        //appRunningLed();
+        appRunningLed();
     }
     
     pthread_join(spiritLevelThread,NULL);
