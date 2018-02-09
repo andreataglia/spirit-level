@@ -17,13 +17,6 @@ typedef Gpio<GPIOD_BASE, 13> orangeLed;
 typedef Gpio<GPIOD_BASE, 14> redLed;
 typedef Gpio<GPIOD_BASE, 15> blueLed;
 
-LedMatrix::LedMatrix(){
-    greenLed::mode(Mode::OUTPUT);
-    orangeLed::mode(Mode::OUTPUT); 
-    redLed::mode(Mode::OUTPUT);
-    blueLed::mode(Mode::OUTPUT); 
-}
-
 /**
  * Turn off all the leds on the matrix
  */
@@ -40,7 +33,12 @@ void LedMatrix::clearDisplay(){
 /**
  * Config the Led Matrix Controller Max7219
  */
-void LedMatrix::config(){
+LedMatrix::LedMatrix(){
+
+    greenLed::mode(Mode::OUTPUT);
+    orangeLed::mode(Mode::OUTPUT); 
+    redLed::mode(Mode::OUTPUT);
+    blueLed::mode(Mode::OUTPUT); 
 
     spi = Spi::getInstance();
 

@@ -10,7 +10,7 @@
 
 using namespace miosix;
 
-const short SENSITIVITY = 200;
+const short SENSITIVITY = 150;
 
 typedef Gpio<GPIOD_BASE, 13> orangeLed;
 

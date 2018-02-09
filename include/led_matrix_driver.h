@@ -11,7 +11,6 @@ class LedMatrix {
 public:    
     LedMatrix();
     void clearDisplay();
-    void config();
     void printOutSprite(short x_position, short y_position);
     void printOutSpriteOnMockLeds(short x_position, short y_position);
     
