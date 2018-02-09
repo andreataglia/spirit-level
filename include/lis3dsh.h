@@ -11,8 +11,8 @@ const short X=0;
 const short Y=1;
 
 class Lis3dsh {
-public:    
-    void config();
+public:
+	Lis3dsh();    
     void start();
     void waitForNewMeasure(short *measure);
     

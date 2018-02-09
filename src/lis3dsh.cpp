@@ -19,7 +19,7 @@ IRQhandler irqHandler;
  * Configure the LIS3DSH accelorometer to acquire measures. 
  * No state machine is necessary.
  */
-void Lis3dsh::config() {
+Lis3dsh::Lis3dsh() {
     spi = Spi::getInstance();
 
     uint8_t address;
