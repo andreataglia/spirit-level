@@ -9,12 +9,14 @@
 
 class Spi {
 public:    
-    void config();
+    static Spi* getInstance();
     void write_acc(uint8_t address, uint8_t data);
     void write_matrix(uint8_t address, uint8_t data);
     uint8_t read_acc(uint8_t address);
     
 private:
+	static Spi* instance;
+	Spi(); // Private constructor to prevent instancing
     void cs_acc_on();
     void cs_acc_off();
     void cs_matrix_on();
