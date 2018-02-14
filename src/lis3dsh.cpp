@@ -35,14 +35,6 @@ Lis3dsh::Lis3dsh() {
     data |= CTRL_REG3_DR_EN; //data ready enabled
     data |= CTRL_REG3_IEA; //interrupt signal active high
     spi->write_acc(address, data);
-
-    address = MASK1_B;
-    data = MASK1_B_P_X | MASK1_B_P_Y; //enable positive X, Y
-    spi->write_acc(address, data);
-
-    address = MASK1_A;
-    data = MASK1_A_P_X | MASK1_A_P_Y; //enable positive X, Y
-    spi->write_acc(address, data);
 }
 
 /**
