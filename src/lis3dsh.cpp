@@ -34,7 +34,6 @@ Lis3dsh::Lis3dsh() {
     data = CTRL_REG3_INT1EN; //interrupt1 enabled
     data |= CTRL_REG3_DR_EN; //data ready enabled
     data |= CTRL_REG3_IEA; //interrupt signal active high
-
     spi->write_acc(address, data);
 }
 
